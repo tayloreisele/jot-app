@@ -1,11 +1,31 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Pressable, View, Text } from 'react-native';
+import { Pressable, View, StyleSheet, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { auth } from './config/firebase';
 
 export default function RootLayout() {
   const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [initialRoute, setInitialRoute] = useState<string | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      if (!initialRoute) {
+        setInitialRoute(user ? '/main' : '/(auth)/login');
+        if (!user) {
+          router.replace('/(auth)/login');
+        }
+      }
+    });
+
+    return unsubscribe;
+  }, []);
+
+  if (!initialRoute) return null;
 
   const CloseButton = () => (
     <Pressable 
@@ -28,7 +48,9 @@ export default function RootLayout() {
       screenOptions={{
         headerStyle: {
           backgroundColor: '#fff',
+          
         },
+        headerShadowVisible: true,
         headerLargeTitle: true,
         headerLargeStyle: {
           backgroundColor: '#fff',
@@ -37,19 +59,18 @@ export default function RootLayout() {
           fontSize: 36,
           fontWeight: '600',
         },
-        headerRight: () => (
-          <View style={{ flexDirection: 'row', gap: 20 }}>
-            <Pressable onPress={() => router.push('/search')}>
-              <Ionicons name="search-outline" size={24} color="#000" />
-            </Pressable>
-            <Pressable onPress={() => router.push('/account')}>
-              <Ionicons name="person-circle-outline" size={24} color="#000" />
-            </Pressable>
-          </View>
-        ),
+        contentStyle: {
+          backgroundColor: '#f2f2f7',
+        },
       }}>
       <Stack.Screen
         name="index"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="(auth)"
         options={{
           headerShown: false,
         }}
@@ -60,6 +81,29 @@ export default function RootLayout() {
           title: 'Notes',
           headerLargeTitle: true,
           headerBackVisible: false,
+          headerShadowVisible: true,
+          headerRight: () => (
+            <View style={{ flexDirection: 'row', gap: 20 }}>
+              <Pressable onPress={() => router.push('/search')}>
+                <Ionicons name="search-outline" size={24} color="#000" />
+              </Pressable>
+              <Pressable onPress={() => router.push('/(modals)/account')}>
+                <Ionicons name="person-circle-outline" size={24} color="#000" />
+              </Pressable>
+            </View>
+          ),
+        }}
+      />
+      <Stack.Screen
+        name="(modals)/account"
+        options={{
+          presentation: 'modal',
+          headerTitle: 'Account',
+          headerTitleStyle: {
+            fontSize: 32,
+            fontWeight: '600',
+          },
+          headerRight: CloseButton,
         }}
       />
       <Stack.Screen
@@ -72,24 +116,6 @@ export default function RootLayout() {
             fontWeight: '600',
           },
           headerRight: CloseButton,
-        }}
-      />
-      <Stack.Screen
-        name="account"
-        options={{
-          presentation: 'modal',
-          headerTitle: 'Account',
-          headerTitleStyle: {
-            fontSize: 32,
-            fontWeight: '600',
-          },
-          headerRight: CloseButton,
-        }}
-      />
-      <Stack.Screen
-        name="(screens)"
-        options={{
-          headerShown: false,
         }}
       />
     </Stack>

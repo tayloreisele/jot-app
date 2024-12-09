@@ -9,7 +9,7 @@ export default function Index() {
       <Text style={styles.title}>Jot - Quick Notes, Faster Thoughts</Text>
       <Pressable 
         style={styles.button} 
-        onPress={() => router.replace('/main')}
+        onPress={() => router.replace('/(auth)/login')}
       >
         <Text style={styles.buttonText}>Get Started</Text>
       </Pressable>
