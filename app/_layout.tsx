@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Pressable, View, StyleSheet, Platform } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from './config/firebase';
@@ -48,9 +48,7 @@ export default function RootLayout() {
       screenOptions={{
         headerStyle: {
           backgroundColor: '#fff',
-          
         },
-        headerShadowVisible: true,
         headerLargeTitle: true,
         headerLargeStyle: {
           backgroundColor: '#fff',
@@ -59,9 +57,16 @@ export default function RootLayout() {
           fontSize: 36,
           fontWeight: '600',
         },
-        contentStyle: {
-          backgroundColor: '#f2f2f7',
-        },
+        headerRight: () => (
+          <View style={{ flexDirection: 'row', gap: 20 }}>
+            <Pressable onPress={() => router.push('/search')}>
+              <Ionicons name="search-outline" size={24} color="#000" />
+            </Pressable>
+            <Pressable onPress={() => router.push('/(modals)/account')}>
+              <Ionicons name="person-circle-outline" size={24} color="#000" />
+            </Pressable>
+          </View>
+        ),
       }}>
       <Stack.Screen
         name="index"
@@ -76,22 +81,19 @@ export default function RootLayout() {
         }}
       />
       <Stack.Screen
-        name="main/index"
+        name="main"
         options={{
-          title: 'Notes',
+          headerTitle: 'Notes',
           headerLargeTitle: true,
+          headerLargeTitleStyle: {
+            fontSize: 36,
+            fontWeight: '600',
+          },
           headerBackVisible: false,
-          headerShadowVisible: true,
-          headerRight: () => (
-            <View style={{ flexDirection: 'row', gap: 20 }}>
-              <Pressable onPress={() => router.push('/search')}>
-                <Ionicons name="search-outline" size={24} color="#000" />
-              </Pressable>
-              <Pressable onPress={() => router.push('/(modals)/account')}>
-                <Ionicons name="person-circle-outline" size={24} color="#000" />
-              </Pressable>
-            </View>
-          ),
+          headerTransparent: false,
+          headerStyle: {
+            backgroundColor: '#fff',
+          },
         }}
       />
       <Stack.Screen
@@ -116,6 +118,12 @@ export default function RootLayout() {
             fontWeight: '600',
           },
           headerRight: CloseButton,
+        }}
+      />
+      <Stack.Screen
+        name="(screens)"
+        options={{
+          headerShown: false,
         }}
       />
     </Stack>
