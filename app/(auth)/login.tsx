@@ -2,8 +2,10 @@ import { View, Text, Pressable, StyleSheet, TextInput, ScrollView } from 'react-
 import { useRouter } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../config/firebase';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { isValidEmail, getFirebaseErrorMessage } from '../utils/validation';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function Login() {
   const router = useRouter();
@@ -11,6 +13,44 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+
+  // Load remember me preference and previous email if it exists
+  useEffect(() => {
+    loadRememberMe();
+  }, []);
+
+  const loadRememberMe = async () => {
+    try {
+      const [rememberValue, savedEmail] = await Promise.all([
+        AsyncStorage.getItem('rememberMe'),
+        AsyncStorage.getItem('savedEmail')
+      ]);
+      
+      if (rememberValue !== null) {
+        setRememberMe(rememberValue === 'true');
+        if (rememberValue === 'true' && savedEmail) {
+          setEmail(savedEmail);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading remember me preference:', error);
+    }
+  };
+
+  const saveRememberMe = async (value: boolean) => {
+    try {
+      await AsyncStorage.setItem('rememberMe', value.toString());
+      setRememberMe(value);
+      
+      // If remember me is turned off, clear the saved email
+      if (!value) {
+        await AsyncStorage.removeItem('savedEmail');
+      }
+    } catch (error) {
+      console.error('Error saving remember me preference:', error);
+    }
+  };
 
   const validateForm = (): boolean => {
     const newErrors: string[] = [];
@@ -39,6 +79,10 @@ export default function Login() {
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      // Save email if remember me is checked
+      if (rememberMe) {
+        await AsyncStorage.setItem('savedEmail', email);
+      }
       router.replace('/main');
     } catch (err: any) {
       console.error('Login error:', err);
@@ -98,6 +142,26 @@ export default function Login() {
           autoCorrect={false}
         />
 
+        <View style={styles.rememberMeContainer}>
+          <Pressable 
+            style={styles.rememberMeButton} 
+            onPress={() => saveRememberMe(!rememberMe)}
+            disabled={isLoading}
+          >
+            <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
+              {rememberMe && <Ionicons name="checkmark" size={16} color="#fff" />}
+            </View>
+            <Text style={styles.rememberMeText}>Remember me</Text>
+          </Pressable>
+          <Pressable 
+            style={styles.forgotPasswordButton}
+            onPress={() => router.push('/reset-password')}
+            disabled={isLoading}
+          >
+            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+          </Pressable>
+        </View>
+
         <Pressable 
           style={[styles.button, isLoading && styles.buttonDisabled]} 
           onPress={handleLogin}
@@ -110,7 +174,7 @@ export default function Login() {
 
         <Pressable 
           style={styles.linkButton} 
-          onPress={() => router.push('/(auth)/signup')}
+          onPress={() => router.push('/signup')}
           disabled={isLoading}
         >
           <Text style={styles.linkText}>Don't have an account? Sign up</Text>
@@ -184,5 +248,40 @@ const styles = StyleSheet.create({
   linkText: {
     color: '#007AFF',
     fontSize: 16,
+  },
+  rememberMeContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  rememberMeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: '#007AFF',
+    marginRight: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkboxChecked: {
+    backgroundColor: '#007AFF',
+  },
+  rememberMeText: {
+    color: '#666',
+    fontSize: 14,
+  },
+  forgotPasswordButton: {
+    padding: 4,
+  },
+  forgotPasswordText: {
+    color: '#007AFF',
+    fontSize: 14,
   },
 }); 

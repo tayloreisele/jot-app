@@ -2,30 +2,111 @@ import React, { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, View, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useSegments } from 'expo-router';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from './config/firebase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Custom type for cached user data
+type CachedUser = {
+  uid: string;
+  email: string | null;
+  emailVerified: boolean;
+};
 
 export default function RootLayout() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [initialRoute, setInitialRoute] = useState<string | null>(null);
+  const segments = useSegments();
+  const [user, setUser] = useState<CachedUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Separate function to handle user state updates
+  const updateUserState = async (userData: CachedUser | null) => {
+    console.log('Updating user state:', userData);
+    setUser(userData);
+    if (userData) {
+      await AsyncStorage.setItem('auth_user', JSON.stringify(userData));
+    } else {
+      await AsyncStorage.removeItem('auth_user');
+    }
+  };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      if (!initialRoute) {
-        setInitialRoute(user ? '/main' : '/(auth)/login');
-        if (!user) {
-          router.replace('/(auth)/login');
+    let isMounted = true;
+
+    const initializeAuth = async () => {
+      try {
+        // Try to get cached user first
+        const cachedUserStr = await AsyncStorage.getItem('auth_user');
+        console.log('Cached user string:', cachedUserStr);
+        
+        if (cachedUserStr && isMounted) {
+          const cachedUser = JSON.parse(cachedUserStr);
+          console.log('Parsed cached user:', cachedUser);
+          updateUserState(cachedUser);
         }
+
+        // Then check Firebase current user
+        const currentUser = auth.currentUser;
+        console.log('Current Firebase user:', currentUser?.email);
+        
+        if (currentUser && isMounted) {
+          const userData: CachedUser = {
+            uid: currentUser.uid,
+            email: currentUser.email,
+            emailVerified: currentUser.emailVerified,
+          };
+          updateUserState(userData);
+        }
+      } catch (error) {
+        console.error('Error during auth initialization:', error);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    // Set up auth state listener
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      console.log('Auth state changed. New user:', firebaseUser?.email);
+      
+      if (firebaseUser && isMounted) {
+        const userData: CachedUser = {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          emailVerified: firebaseUser.emailVerified,
+        };
+        updateUserState(userData);
+      } else if (isMounted) {
+        updateUserState(null);
       }
     });
 
-    return unsubscribe;
+    // Initialize auth state
+    initializeAuth();
+
+    // Cleanup
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
   }, []);
 
-  if (!initialRoute) return null;
+  useEffect(() => {
+    if (!isLoading) {
+      if (user) {
+        router.replace('/main');
+      } else {
+        router.replace('/(auth)/login');
+      }
+    }
+  }, [user, isLoading]);
+
+  if (isLoading) {
+    // You might want to show a loading screen here
+    return null;
+  }
 
   const CloseButton = () => (
     <Pressable 
