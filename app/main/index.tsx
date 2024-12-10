@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import HeaderDivider from '../components/HeaderDivider';
 
 export default function TabIndex() {
   const router = useRouter();
@@ -10,6 +11,7 @@ export default function TabIndex() {
 
   return (
     <View style={styles.container}>
+      <HeaderDivider />
       <TouchableOpacity 
         style={styles.newButton}
         onPress={handleNewNote}
