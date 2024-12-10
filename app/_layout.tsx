@@ -57,6 +57,9 @@ export default function RootLayout() {
           fontSize: 36,
           fontWeight: '600',
         },
+        contentStyle: {
+          backgroundColor: '#f8f8f8',
+        },
         headerRight: () => (
           <View style={{ flexDirection: 'row', gap: 20 }}>
             <Pressable onPress={() => router.push('/search')}>
@@ -93,6 +96,10 @@ export default function RootLayout() {
           headerTransparent: false,
           headerStyle: {
             backgroundColor: '#fff',
+          },
+          headerShadowVisible: false,
+          contentStyle: {
+            backgroundColor: '#f8f8f8',
           },
         }}
       />

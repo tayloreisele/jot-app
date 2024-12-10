@@ -3,7 +3,7 @@ import { getAuth } from 'firebase/auth';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBrNNqDspmk3W-NYtDJn7zjabaYIoxvLJE",
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
   authDomain: "jot-app-ed946.firebaseapp.com",
   projectId: "jot-app-ed946",
   storageBucket: "jot-app-ed946.firebasestorage.app",

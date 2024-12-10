@@ -6,7 +6,12 @@ export default function MainLayout() {
   const router = useRouter();
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack screenOptions={{ 
+      headerShown: false,
+      contentStyle: {
+        backgroundColor: '#F5F5F5',
+      },
+    }}>
       <Stack.Screen 
         name="index" 
         options={{
