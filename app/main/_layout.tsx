@@ -9,7 +9,7 @@ export default function MainLayout() {
     <Stack screenOptions={{ 
       headerShown: false,
       contentStyle: {
-        backgroundColor: '#F5F5F5',
+        backgroundColor: '#F5F5F5', // WHERE TO CHANGE BACKGROUND COLOR
       },
     }}>
       <Stack.Screen 

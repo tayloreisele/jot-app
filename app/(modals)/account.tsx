@@ -3,6 +3,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { signOut } from 'firebase/auth';
 import { auth } from '../config/firebase';
+import HeaderDivider from '../components/HeaderDivider';
 
 export default function Account() {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function Account() {
 
   return (
     <View style={styles.container}>
+      <HeaderDivider isModal />
       <View style={styles.section}>
         <Text style={styles.label}>Email</Text>
         <Text style={styles.value}>{user?.email}</Text>
@@ -39,12 +41,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     padding: 16,
-    paddingTop: 32,
+    paddingTop: 108,
   },
   section: {
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
     marginBottom: 24,
   },
   label: {

@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 
-export default function HeaderDivider() {
-  return <View style={styles.divider} />;
+export default function HeaderDivider({ isModal }: { isModal?: boolean }) {
+  return <View style={[styles.divider, isModal && styles.modalDivider]} />;
 }
 
 const styles = StyleSheet.create({
@@ -11,8 +11,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#CCCCCC',
     position: 'absolute',
     top: 0,
-    left: -16,  // Compensate for container padding
-    right: -16, // Compensate for container padding
-    width: '120%',  // Make it a bit wider to ensure full coverage
+    left: -16,
+    right: -16,
+    width: '120%',
+  },
+  modalDivider: {
+    position: 'relative',
+    width: '100%',
+    marginBottom: 16,  // Add some space below the divider
+    left: 0,
+    right: 0,
   },
 });

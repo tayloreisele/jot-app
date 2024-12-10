@@ -2,15 +2,18 @@ import React from 'react';
 import { View, TextInput, StyleSheet, Pressable, Text } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import HeaderDivider from '../components/HeaderDivider';
 
 export default function NewNote() {
   const router = useRouter();
 
   return (
     <View style={styles.container}>
+      <HeaderDivider />
       <Stack.Screen
         options={{
           title: 'New Note',
+          headerShadowVisible: false,
           headerLeft: () => (
             <Pressable 
               onPress={() => router.back()}

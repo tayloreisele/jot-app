@@ -62,7 +62,7 @@ export default function RootLayout() {
         },
         headerRight: () => (
           <View style={{ flexDirection: 'row', gap: 20 }}>
-            <Pressable onPress={() => router.push('/search')}>
+            <Pressable onPress={() => router.push('/(modals)/search')}>
               <Ionicons name="search-outline" size={24} color="#000" />
             </Pressable>
             <Pressable onPress={() => router.push('/(modals)/account')}>
@@ -112,11 +112,12 @@ export default function RootLayout() {
             fontSize: 32,
             fontWeight: '600',
           },
+          headerShadowVisible: false,
           headerRight: CloseButton,
         }}
       />
       <Stack.Screen
-        name="search"
+        name="(modals)/search"
         options={{
           presentation: 'modal',
           headerTitle: 'Search',
@@ -124,6 +125,7 @@ export default function RootLayout() {
             fontSize: 32,
             fontWeight: '600',
           },
+          headerShadowVisible: false,
           headerRight: CloseButton,
         }}
       />

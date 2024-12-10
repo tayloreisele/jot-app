@@ -1,9 +1,11 @@
 import { View, TextInput, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import HeaderDivider from '../components/HeaderDivider';
 
 export default function Search() {
   return (
     <View style={styles.container}>
+      <HeaderDivider isModal />
       <View style={styles.searchContainer}>
         <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
         <TextInput
@@ -22,8 +24,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingHorizontal: 16,
+    padding: 16,
+    paddingTop: 108,
+  },
+  contentContainer: {
     paddingTop: 32,
+    flex: 1,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -42,4 +48,4 @@ const styles = StyleSheet.create({
     color: '#000',
     height: '100%',
   },
-}); 
+});
